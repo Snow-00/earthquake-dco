@@ -1,4 +1,3 @@
 MVP
 1. get recent news of earthquake
 2. calculate the distance of earthquake n DC
-test
