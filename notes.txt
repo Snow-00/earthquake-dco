@@ -1,6 +1,7 @@
 if there are customize header / maybe redirect policy then we must use the client.Do method
 https://pkg.go.dev/net/http
 
+just reminder while in golang use for {}, to break it u need to specify the condition manually
 =================================================
 
 MVP

@@ -1,9 +1,13 @@
 package controllers
 
-import "github.com/Snow-00/earthquake-dco/internal/models"
+import "log"
 
-func SendMessage() (*models.RespMessage, error) {
-	// prepare request
+// func SendMessage() (*models.RespMessage, error) {
+// 	// prepare request
 
-	// send message with photo
+// 	// send message with photo
+// }
+
+func GetGempa() {
+	log.Println("get gempa info")
 }

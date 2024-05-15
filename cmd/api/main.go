@@ -1,18 +1,42 @@
 package main
 
 import (
+	"context"
 	"log"
-	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/Snow-00/earthquake-dco/internal/controllers"
 )
 
 func main() {
+	// create context to listen interrupt
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
 	// load config
 
 	// start server
-	server := &http.Server{Addr: ":8080"}
+	// server := &http.Server{Addr: ":8080"}
 
-	log.Println("Listening on :8080")
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
+	// log.Println("Listening on :8080")
+	// if err := server.ListenAndServe(); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// auto get gempa
+	ticker := time.NewTicker(5 * time.Second)
+
+	for {
+		select {
+		case <-ticker.C:
+			controllers.GetGempa()
+		case <-ctx.Done():
+			ticker.Stop()
+			break
+		}
 	}
+
+	log.Println("Service shutdown")
 }
