@@ -17,27 +17,21 @@ func main() {
 
 	// load config
 
-	// start server
-	// server := &http.Server{Addr: ":8080"}
-
-	// log.Println("Listening on :8080")
-	// if err := server.ListenAndServe(); err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	// auto get gempa
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
 
-out:
-	for {
-		select {
-		case <-ticker.C:
-			controllers.GetGempa()
-		case <-ctx.Done():
-			ticker.Stop()
-			break out
+	go func() {
+		for {
+			if err := controllers.SendGempa(); err != nil {
+				log.Fatal(err)
+			}
+
+			<-ticker.C
 		}
-	}
+	}()
+
+	<-ctx.Done()
 
 	log.Println("Service shutdown")
 }
