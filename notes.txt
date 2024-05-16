@@ -2,6 +2,14 @@ if there are customize header / maybe redirect policy then we must use the clien
 https://pkg.go.dev/net/http
 
 just reminder while in golang use for {}, to break it u need to specify the condition manually
+
+to break from loop, can use break label
+out:
+for {
+    break out
+}
+https://stackoverflow.com/questions/51996175/how-to-break-out-of-nested-loops-in-go
+
 =================================================
 
 MVP

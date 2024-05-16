@@ -28,13 +28,14 @@ func main() {
 	// auto get gempa
 	ticker := time.NewTicker(5 * time.Second)
 
+out:
 	for {
 		select {
 		case <-ticker.C:
 			controllers.GetGempa()
 		case <-ctx.Done():
 			ticker.Stop()
-			break
+			break out
 		}
 	}
 
