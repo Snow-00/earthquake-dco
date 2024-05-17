@@ -12,7 +12,7 @@ type Gempa struct {
 	Shakemap    string `json:"Shakemap"`
 }
 
-type Response struct {
+type RespGempa struct {
 	Infogempa struct {
 		Gempa Gempa `json:"gempa"`
 	} `json:"Infogempa"`

@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Snow-00/earthquake-dco/internal/config"
 	"github.com/Snow-00/earthquake-dco/internal/controllers"
 )
 
@@ -16,6 +17,7 @@ func main() {
 	defer stop()
 
 	// load config
+	config.LoadConfig()
 
 	// auto get gempa
 	ticker := time.NewTicker(30 * time.Second)

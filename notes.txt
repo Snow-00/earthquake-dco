@@ -14,5 +14,5 @@ https://stackoverflow.com/questions/51996175/how-to-break-out-of-nested-loops-in
 
 MVP
 1. [V] get recent news of earthquake
-2. calculate the distance of earthquake n DC
-3. send to telegram
+2. [-] calculate the distance of earthquake n DC
+3. [V] send to telegram
