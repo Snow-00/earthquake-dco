@@ -19,8 +19,9 @@ type RespGempa struct {
 }
 
 type Message struct {
-	ChatID string `json:"chat_id"`
-	Text   string `json:"text"`
+	ChatID  string `json:"chat_id"`
+	Photo   string `json:"photo"`
+	Caption string `json:"caption"`
 }
 
 type RespMessage struct {

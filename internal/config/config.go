@@ -12,6 +12,7 @@ type Config struct {
 	MBCA      []float64
 	WSA       []float64
 	GRHA      []float64
+	GAC       []float64
 }
 
 const BMKG = "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json?000"
@@ -31,6 +32,7 @@ func LoadConfig() {
 		viper.BindEnv("MBCA")
 		viper.BindEnv("WSA")
 		viper.BindEnv("GRHA")
+		viper.BindEnv("GAC")
 	}
 
 	if err := viper.Unmarshal(&ENV); err != nil {

@@ -7,6 +7,8 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/Snow-00/earthquake-dco/internal/config"
 	"github.com/Snow-00/earthquake-dco/internal/models"
@@ -33,7 +35,7 @@ func GetGempa() (*models.RespGempa, error) {
 	return &respData, err
 }
 
-func Distance(dcPoint []float64, lat, long float64) bool {
+func CompareDist(dcPoint []float64, lat, long float64) bool {
 	// convert to radian
 	dcPoint[0] = dcPoint[0] * math.Pi / 180
 	dcPoint[1] = dcPoint[1] * math.Pi / 180
@@ -49,17 +51,18 @@ func Distance(dcPoint []float64, lat, long float64) bool {
 
 func SendMessage(respGempa *models.RespGempa) (*models.RespMessage, error) {
 	// prepare message
-	teleUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", config.ENV.BOT_TOKEN)
+	teleUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendPhoto", config.ENV.BOT_TOKEN)
+	bmkgImg := fmt.Sprintf("https://data.bmkg.go.id/DataMKG/TEWS/%s?000", respGempa.Infogempa.Gempa.Shakemap)
 
 	text := fmt.Sprintf(
 		`Dear All,
-		Berikut kami informasikan gempa terbaru berdasarkan data BMKG:
-		
-		%s | %s
-		Wilayah: %s
-		Magnitude: %s SR
-		Kedalaman: %s
-		Potensi: %s`,
+Berikut kami informasikan gempa terbaru berdasarkan data BMKG:
+
+%s | %s
+Wilayah: %s
+Magnitude: %s SR
+Kedalaman: %s
+Potensi: %s`,
 		respGempa.Infogempa.Gempa.Tanggal,
 		respGempa.Infogempa.Gempa.Jam,
 		respGempa.Infogempa.Gempa.Wilayah,
@@ -69,8 +72,9 @@ func SendMessage(respGempa *models.RespGempa) (*models.RespMessage, error) {
 	)
 
 	msg := &models.Message{
-		ChatID: config.ENV.CHAT_ID,
-		Text:   text,
+		ChatID:  config.ENV.CHAT_ID,
+		Photo:   bmkgImg,
+		Caption: text,
 	}
 
 	reqJSON, _ := json.Marshal(msg)
@@ -96,23 +100,33 @@ func SendMessage(respGempa *models.RespGempa) (*models.RespMessage, error) {
 	return &respObj, err
 }
 
-func SendGempa() error {
+func SendGempa() (bool, error) {
 	// get gempa info
 	respGempa, err := GetGempa()
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// convert string to coordinate
-	// coordinate := strings.Split(respGempa.Infogempa.Gempa.Coordinates, ",")
-	// lat, _ := strconv.ParseFloat(coordinate[0], 64)
-	// long, _ := strconv.ParseFloat(coordinate[1], 64)
+	coordinate := strings.Split(respGempa.Infogempa.Gempa.Coordinates, ",")
+	lat, _ := strconv.ParseFloat(coordinate[0], 64)
+	long, _ := strconv.ParseFloat(coordinate[1], 64)
 
-	// // compare distance
-	// dist := Distance(config.ENV.MBCA, lat, long)
+	// compare distance
+	if !CompareDist(config.ENV.MBCA, lat, long) && !CompareDist(config.ENV.WSA, lat, long) && !CompareDist(config.ENV.GRHA, lat, long) && !CompareDist(config.ENV.GAC, lat, long) {
+		return false, nil
+	}
 
 	// send message
-	_, err = SendMessage(respGempa)
+	respMsg, err := SendMessage(respGempa)
+	if err != nil {
+		return false, err
+	}
 
-	return err
+	if !respMsg.Ok {
+		err = fmt.Errorf("Status: %d; Description: %s", respMsg.ErrorCode, respMsg.Description)
+		return false, err
+	}
+
+	return true, nil
 }

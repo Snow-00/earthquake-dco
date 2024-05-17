@@ -20,13 +20,22 @@ func main() {
 	config.LoadConfig()
 
 	// auto get gempa
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(90 * time.Second)
 	defer ticker.Stop()
+
+	defer log.Println("this is test")
 
 	go func() {
 		for {
-			if err := controllers.SendGempa(); err != nil {
+			ok, err := controllers.SendGempa()
+			if err != nil {
 				log.Fatal(err)
+			}
+
+			if ok {
+				log.Println("Message sent")
+			} else {
+				log.Println("Not around DC")
 			}
 
 			<-ticker.C
