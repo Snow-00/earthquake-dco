@@ -23,8 +23,6 @@ func main() {
 	ticker := time.NewTicker(90 * time.Second)
 	defer ticker.Stop()
 
-	defer log.Println("this is test")
-
 	go func() {
 		for {
 			ok, err := controllers.SendGempa()

@@ -130,3 +130,7 @@ func SendGempa() (bool, error) {
 
 	return true, nil
 }
+
+func AlertErr() {
+
+}
