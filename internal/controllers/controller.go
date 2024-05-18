@@ -77,6 +77,7 @@ Potensi: %s`,
 		Caption: text,
 	}
 
+	// marshal message
 	reqJSON, _ := json.Marshal(msg)
 	reqBody := bytes.NewReader(reqJSON)
 
@@ -131,6 +132,22 @@ func SendGempa() (bool, error) {
 	return true, nil
 }
 
-func AlertErr() {
+func AlertErr() error {
+	// prepare message
+	teleUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", config.ENV.BOT_TOKEN)
+	text := "Service gempa bumi gagal"
 
+	msg := struct {
+		ChatID string `json:"chat_id"`
+		Text   string `json:"text"`
+	}{ChatID: config.ENV.CHAT_ID, Text: text}
+
+	// marshall message
+	reqJSON, _ := json.Marshal(msg)
+	reqBody := bytes.NewReader(reqJSON)
+
+	// send alert to tele
+	_, err := http.Post(teleUrl, "application/json", reqBody)
+
+	return err
 }

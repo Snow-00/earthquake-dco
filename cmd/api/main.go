@@ -27,6 +27,9 @@ func main() {
 		for {
 			ok, err := controllers.SendGempa()
 			if err != nil {
+				if err := controllers.AlertErr(); err != nil {
+					log.Printf("Failed send alert: %s", err)
+				}
 				log.Fatal(err)
 			}
 

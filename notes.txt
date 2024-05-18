@@ -10,6 +10,8 @@ for {
 }
 https://stackoverflow.com/questions/51996175/how-to-break-out-of-nested-loops-in-go
 
+to use go1.22.3 in codespace, must change into GOTOOLCHAIN=go1.22.3
+
 =================================================
 
 MVP
