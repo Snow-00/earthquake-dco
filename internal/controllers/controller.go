@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -13,6 +14,8 @@ import (
 	"github.com/Snow-00/earthquake-dco/internal/config"
 	"github.com/Snow-00/earthquake-dco/internal/models"
 )
+
+var EQ_POINT [2]float64
 
 func GetGempa() (*models.RespGempa, error) {
 	// get data from bmkg
@@ -113,6 +116,16 @@ func SendGempa() (bool, error) {
 	lat, _ := strconv.ParseFloat(coordinate[0], 64)
 	long, _ := strconv.ParseFloat(coordinate[1], 64)
 
+	// check for new eq info
+	if EQ_POINT[0] == lat && EQ_POINT[1] == long {
+		log.Println("same coordinate")
+		return false, nil
+	}
+
+	EQ_POINT[0] = lat
+	EQ_POINT[1] = long
+	log.Println("new coordinate")
+
 	// compare distance
 	if !CompareDist(config.ENV.MBCA, lat, long) && !CompareDist(config.ENV.WSA, lat, long) && !CompareDist(config.ENV.GRHA, lat, long) && !CompareDist(config.ENV.GAC, lat, long) {
 		return false, nil
@@ -125,7 +138,7 @@ func SendGempa() (bool, error) {
 	}
 
 	if !respMsg.Ok {
-		err = fmt.Errorf("Status: %d; Description: %s", respMsg.ErrorCode, respMsg.Description)
+		err = fmt.Errorf("status: %d; description: %s", respMsg.ErrorCode, respMsg.Description)
 		return false, err
 	}
 
