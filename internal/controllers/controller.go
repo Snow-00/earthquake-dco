@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -104,11 +103,11 @@ Potensi: %s`,
 	return &respObj, err
 }
 
-func SendGempa() (bool, error) {
+func SendGempa() (new, ok bool, err error) {
 	// get gempa info
 	respGempa, err := GetGempa()
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 
 	// convert string to coordinate
@@ -118,31 +117,29 @@ func SendGempa() (bool, error) {
 
 	// check for new eq info
 	if EQ_POINT[0] == lat && EQ_POINT[1] == long {
-		log.Println("same coordinate")
-		return false, nil
+		return false, false, nil
 	}
 
 	EQ_POINT[0] = lat
 	EQ_POINT[1] = long
-	log.Println("new coordinate")
 
 	// compare distance
 	if !CompareDist(config.ENV.MBCA, lat, long) && !CompareDist(config.ENV.WSA, lat, long) && !CompareDist(config.ENV.GRHA, lat, long) && !CompareDist(config.ENV.GAC, lat, long) {
-		return false, nil
+		return true, false, nil
 	}
 
 	// send message
 	respMsg, err := SendMessage(respGempa)
 	if err != nil {
-		return false, err
+		return true, false, err
 	}
 
 	if !respMsg.Ok {
 		err = fmt.Errorf("status: %d; description: %s", respMsg.ErrorCode, respMsg.Description)
-		return false, err
+		return true, false, err
 	}
 
-	return true, nil
+	return true, true, nil
 }
 
 func AlertErr() error {

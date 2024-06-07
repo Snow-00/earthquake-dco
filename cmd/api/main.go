@@ -25,12 +25,16 @@ func main() {
 
 	go func() {
 		for {
-			ok, err := controllers.SendGempa()
+			new, ok, err := controllers.SendGempa()
 			if err != nil {
 				if err := controllers.AlertErr(); err != nil {
 					log.Printf("Failed send alert: %s", err)
 				}
 				log.Fatal(err)
+			}
+
+			if new {
+				log.Println("new coordinate")
 			}
 
 			if ok {
