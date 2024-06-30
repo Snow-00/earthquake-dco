@@ -25,6 +25,8 @@ func main() {
 
 	go func() {
 		for {
+			<-ticker.C
+
 			new, ok, err := controllers.SendGempa()
 			if err != nil {
 				if err := controllers.AlertErr(); err != nil {
@@ -35,6 +37,9 @@ func main() {
 
 			if new {
 				log.Println("new coordinate")
+			} else {
+				log.Println("no new coordinate")
+				continue
 			}
 
 			if ok {
@@ -42,8 +47,6 @@ func main() {
 			} else {
 				log.Println("Not around DC")
 			}
-
-			<-ticker.C
 		}
 	}()
 
