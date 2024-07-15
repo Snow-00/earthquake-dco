@@ -150,7 +150,7 @@ func AlertErr() error {
 	msg := struct {
 		ChatID string `json:"chat_id"`
 		Text   string `json:"text"`
-	}{ChatID: config.ENV.CHAT_ID, Text: text}
+	}{ChatID: config.ENV.ERR_CHAT_ID, Text: text}
 
 	// marshall message
 	reqJSON, _ := json.Marshal(msg)
