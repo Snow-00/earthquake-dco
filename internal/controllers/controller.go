@@ -124,7 +124,7 @@ func SendGempa() (new, ok bool, err error) {
 	EQ_POINT[1] = long
 
 	// compare distance
-	if !CompareDist(config.ENV.MBCA, lat, long) && !CompareDist(config.ENV.WSA, lat, long) && !CompareDist(config.ENV.GRHA, lat, long) && !CompareDist(config.ENV.GAC, lat, long) {
+	if !CompareDist(config.ENV.DC_1, lat, long) && !CompareDist(config.ENV.DC_2, lat, long) && !CompareDist(config.ENV.DC_3, lat, long) && !CompareDist(config.ENV.DC_4, lat, long) {
 		return true, false, nil
 	}
 

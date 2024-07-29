@@ -10,10 +10,10 @@ type Config struct {
 	BOT_TOKEN   string
 	CHAT_ID     string
 	ERR_CHAT_ID string
-	MBCA        []float64
-	WSA         []float64
-	GRHA        []float64
-	GAC         []float64
+	DC_1        []float64
+	DC_2        []float64
+	DC_3        []float64
+	DC_4        []float64
 }
 
 const BMKG = "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json?000"
@@ -31,10 +31,10 @@ func LoadConfig() {
 		viper.BindEnv("BOT_TOKEN")
 		viper.BindEnv("CHAT_ID")
 		viper.BindEnv("ERR_CHAT_ID")
-		viper.BindEnv("MBCA")
-		viper.BindEnv("WSA")
-		viper.BindEnv("GRHA")
-		viper.BindEnv("GAC")
+		viper.BindEnv("DC_1")
+		viper.BindEnv("DC_2")
+		viper.BindEnv("DC_3")
+		viper.BindEnv("DC_4")
 	}
 
 	if err := viper.Unmarshal(&ENV); err != nil {
