@@ -24,12 +24,14 @@ func main() {
 	defer ticker.Stop()
 
 	go func() {
+		var recheck bool
+
 		for {
 			<-ticker.C
 
-			new, ok, err := controllers.SendGempa()
+			new, ok, err := controllers.SendGempa(recheck)
 			if err != nil {
-				if err := controllers.AlertErr(); err != nil {
+				if err := controllers.AlertErr("error"); err != nil {
 					log.Printf("Failed send alert: %s", err)
 				}
 				log.Fatal(err)
@@ -42,10 +44,16 @@ func main() {
 				continue
 			}
 
+			if recheck {
+				log.Println("this is recheck")
+				controllers.AlertErr("info")
+			}
+
 			if ok {
 				log.Println("Message sent")
 			} else {
 				log.Println("Not around DC")
+				recheck = !recheck
 			}
 		}
 	}()

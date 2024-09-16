@@ -38,12 +38,6 @@ func GetGempa() (*models.RespGempa, error) {
 }
 
 func CompareDist(dcPoint []float64, lat, long float64) bool {
-	// convert to radian
-	dcPoint[0] = dcPoint[0] * math.Pi / 180
-	dcPoint[1] = dcPoint[1] * math.Pi / 180
-	lat = lat * math.Pi / 180
-	long = long * math.Pi / 180
-
 	// calculate distance
 	z := math.Sin(dcPoint[0])*math.Sin(lat) + math.Cos(dcPoint[0])*math.Cos(lat)*math.Cos(long-dcPoint[1])
 	dist := math.Acos(z) * 6371 // earth radius
@@ -103,7 +97,7 @@ Potensi: %s`,
 	return &respObj, err
 }
 
-func SendGempa() (new, ok bool, err error) {
+func SendGempa(recheck bool) (new, ok bool, err error) {
 	// get gempa info
 	respGempa, err := GetGempa()
 	if err != nil {
@@ -116,15 +110,19 @@ func SendGempa() (new, ok bool, err error) {
 	long, _ := strconv.ParseFloat(coordinate[1], 64)
 
 	// check for new eq info
-	if EQ_POINT[0] == lat && EQ_POINT[1] == long {
+	if EQ_POINT[0] == lat && EQ_POINT[1] == long && !recheck {
 		return false, false, nil
 	}
 
 	EQ_POINT[0] = lat
 	EQ_POINT[1] = long
 
+	// convert to radian
+	lat = lat * math.Pi / 180
+	long = long * math.Pi / 180
+
 	// compare distance
-	if !CompareDist(config.ENV.DC_1, lat, long) && !CompareDist(config.ENV.DC_2, lat, long) && !CompareDist(config.ENV.DC_3, lat, long) && !CompareDist(config.ENV.DC_4, lat, long) {
+	if !CompareDist(config.DC_COORDS[0], lat, long) && !CompareDist(config.DC_COORDS[1], lat, long) && !CompareDist(config.DC_COORDS[2], lat, long) && !CompareDist(config.DC_COORDS[3], lat, long) {
 		return true, false, nil
 	}
 
@@ -142,10 +140,16 @@ func SendGempa() (new, ok bool, err error) {
 	return true, true, nil
 }
 
-func AlertErr() error {
+func AlertErr(typeMsg string) error {
 	// prepare message
+	var text string
 	teleUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", config.ENV.BOT_TOKEN)
-	text := "Service gempa bumi gagal"
+
+	if typeMsg == "info" {
+		text = fmt.Sprint("Recheck: ", EQ_POINT)
+	} else {
+		text = "Service gempa bumi gagal"
+	}
 
 	msg := struct {
 		ChatID string `json:"chat_id"`

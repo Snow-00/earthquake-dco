@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"math"
 
 	"github.com/spf13/viper"
 )
@@ -20,6 +21,7 @@ const BMKG = "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json?000"
 const MAX_DIST = 200
 
 var ENV Config
+var DC_COORDS [][]float64
 
 func LoadConfig() {
 	viper.AddConfigPath(".")
@@ -39,6 +41,15 @@ func LoadConfig() {
 
 	if err := viper.Unmarshal(&ENV); err != nil {
 		log.Fatal(err)
+	}
+
+	DC_COORDS = append(DC_COORDS, ENV.DC_1, ENV.DC_2, ENV.DC_3, ENV.DC_4)
+
+	// convert coords into radian
+	for i := 0; i < len(DC_COORDS); i++ {
+		for j := 0; j < 2; j++ {
+			DC_COORDS[i][j] = DC_COORDS[i][j] * math.Pi / 180
+		}
 	}
 
 	log.Println("Load config success")
