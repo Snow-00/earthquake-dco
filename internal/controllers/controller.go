@@ -14,7 +14,7 @@ import (
 	"github.com/Snow-00/earthquake-dco/internal/models"
 )
 
-var EQ_POINT [2]float64
+var EQ_POINT = [2]float64{-7.21, 107.66}
 
 func GetGempa() (*models.RespGempa, error) {
 	// get data from bmkg
@@ -47,8 +47,9 @@ func CompareDist(dcPoint []float64, lat, long float64) bool {
 
 func SendMessage(respGempa *models.RespGempa) (*models.RespMessage, error) {
 	// prepare message
+	imgUrl := strings.ReplaceAll(respGempa.Infogempa.Gempa.Shakemap, ".", "%2E")
 	teleUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendPhoto", config.ENV.BOT_TOKEN)
-	bmkgImg := fmt.Sprintf("https://data.bmkg.go.id/DataMKG/TEWS/%s?000", respGempa.Infogempa.Gempa.Shakemap)
+	bmkgImg := fmt.Sprintf("https://data.bmkg.go.id/DataMKG/TEWS/%s?000", imgUrl)
 
 	text := fmt.Sprintf(
 		`Dear All,
