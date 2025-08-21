@@ -5,16 +5,44 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/Snow-00/earthquake-dco/internal/config"
+	"github.com/Snow-00/earthquake-dco/internal/helper"
 	"github.com/Snow-00/earthquake-dco/internal/models"
 )
 
 var EQ_POINT = [2]float64{-7.21, 107.66}
+
+func TriggerCheck(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "", http.StatusNotFound)
+		return
+	}
+
+	new, ok, err := SendGempa()
+	if err != nil {
+		AlertErr(err.Error())
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+
+	if !new {
+		helper.ResultCheck(w, "No new coordinate")
+		return
+	}
+
+	if !ok {
+		helper.ResultCheck(w, "Not around DC")
+		return
+	}
+
+	helper.ResultCheck(w, "Message sent", http.StatusCreated)
+}
 
 func GetGempa() (*models.RespGempa, error) {
 	// get data from bmkg
@@ -98,7 +126,7 @@ Potensi: %s`,
 	return &respObj, err
 }
 
-func SendGempa(recheck bool) (new, ok bool, err error) {
+func SendGempa() (new, ok bool, err error) {
 	// get gempa info
 	respGempa, err := GetGempa()
 	if err != nil {
@@ -111,7 +139,7 @@ func SendGempa(recheck bool) (new, ok bool, err error) {
 	long, _ := strconv.ParseFloat(coordinate[1], 64)
 
 	// check for new eq info
-	if EQ_POINT[0] == lat && EQ_POINT[1] == long && !recheck {
+	if EQ_POINT[0] == lat && EQ_POINT[1] == long {
 		return false, false, nil
 	}
 
@@ -141,16 +169,12 @@ func SendGempa(recheck bool) (new, ok bool, err error) {
 	return true, true, nil
 }
 
-func AlertErr(typeMsg string) error {
-	// prepare message
-	var text string
-	teleUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", config.ENV.BOT_TOKEN)
+func AlertErr(errTxt string) error {
+	log.Println(errTxt)
 
-	if typeMsg == "info" {
-		text = fmt.Sprint("Recheck: ", EQ_POINT)
-	} else {
-		text = "Service gempa bumi gagal"
-	}
+	// prepare message
+	teleUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", config.ENV.BOT_TOKEN)
+	text := "Service gempa bumi gagal"
 
 	msg := struct {
 		ChatID string `json:"chat_id"`
