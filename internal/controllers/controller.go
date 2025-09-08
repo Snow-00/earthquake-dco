@@ -37,7 +37,7 @@ func TriggerCheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !ok {
-		helper.ResultCheck(w, "Not around DC")
+		helper.ResultCheck(w, "Not around DC / Under 3.5 Magnitude")
 		return
 	}
 
@@ -71,6 +71,11 @@ func CompareDist(dcPoint []float64, lat, long float64) bool {
 	dist := math.Acos(z) * 6371 // earth radius
 
 	return dist < config.MAX_DIST
+}
+
+func CheckMag(magStr string) bool {
+	magnitude, _ := strconv.ParseFloat(magStr, 64)
+	return magnitude > 3.5
 }
 
 func SendMessage(respGempa *models.RespGempa) (*models.RespMessage, error) {
@@ -152,6 +157,11 @@ func SendGempa() (new, ok bool, err error) {
 
 	// compare distance
 	if !CompareDist(config.DC_COORDS[0], lat, long) && !CompareDist(config.DC_COORDS[1], lat, long) && !CompareDist(config.DC_COORDS[2], lat, long) && !CompareDist(config.DC_COORDS[3], lat, long) {
+		return true, false, nil
+	}
+
+	// check eq magnitude
+	if !CheckMag(respGempa.Infogempa.Gempa.Magnitude) {
 		return true, false, nil
 	}
 
